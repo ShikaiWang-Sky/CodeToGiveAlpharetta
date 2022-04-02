@@ -41,7 +41,6 @@ def register():
             email=form.email.data,
             password=hashed_password,
             account_type='mentee',
-
             interests = str(form.interests.data),
             languages = str(form.languages.data)
         )

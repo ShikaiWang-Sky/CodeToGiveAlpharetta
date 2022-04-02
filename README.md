@@ -18,3 +18,8 @@ pip3 install -r requirements.txt
 ```
 python run.py
 ```
+
+
+## Testing Accounts
+Admin:
+    andre@mail.com:password

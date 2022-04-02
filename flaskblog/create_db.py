@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from flask_bcrypt import Bcrypt
 from datetime import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_sqlalchemy import SQLAlchemy
@@ -11,8 +12,10 @@ from flask import Flask
 app = Flask(__name__)
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
+bcrypt = Bcrypt(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -45,8 +48,8 @@ class User(db.Model, UserMixin):
     # mentor, mentee, admin
     account_type = db.Column(db.String(20), nullable=False)
 
-    interests = db.Column(db.String())
-    languages = db.Column(db.String())
+    interests = db.Column(db.String(), default="")
+    languages = db.Column(db.String(), default="")
 
     # if User is a mentee, stores mentor
     mentor_id = db.Column(db.Integer)
@@ -66,8 +69,21 @@ def init_db():
     db.drop_all()
     db.create_all()
 
-    admin = User()
+    hashed_password = bcrypt.generate_password_hash('password').decode('utf-8')
+
+    admin = User(
+        first_name='Andre',
+        last_name='Hu',
+        email='andre@mail.com',
+        password=hashed_password,
+        account_type='admin'
+    )
+
+
+    db.session.add_all([admin])
+    db.session.commit()
+    print("Database created!")
 
 if __name__ == '__main__':
     init_db()
-    print("Database created!")
+    
