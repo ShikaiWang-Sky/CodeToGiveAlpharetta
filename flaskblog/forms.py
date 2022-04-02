@@ -21,6 +21,14 @@ class RegistrationForm(FlaskForm):
         ('javascript', 'Javascript')
     ])
 
+    interests = SelectMultipleField(u'Interests', choices =[
+        ('health', 'Health'),
+        ('finance', 'Finance'),
+        ('data', 'Data Science'),
+        ('backend', 'Backend'),
+        ('frontend', 'Frontend')
+    ])
+
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(), EqualTo('password')])

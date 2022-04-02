@@ -3,7 +3,6 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flaskblog import db, login_manager, app
 from flask_login import UserMixin
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -11,11 +10,12 @@ def load_user(user_id):
 
 # Association Table for many-to-many relationship
 user_meeting = db.Table('user_meeting',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('meeting_id', db.Integer, db.ForeignKey('meeting.id'))
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('meeting_id', db.Integer, db.ForeignKey('meetings.id'))
 )
 
 class Meeting(db.Model):
+    __tablename__ = 'meetings'
     id = db.Column(db.Integer, primary_key=True)
     start = db.Column(db.DateTime(), nullable=False)
     end = db.Column(db.DateTime(), nullable=False)
@@ -23,6 +23,7 @@ class Meeting(db.Model):
    
 
 class User(db.Model, UserMixin):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     # username = db.Column(db.String(20), unique=True, nullable=False)
     first_name = db.Column(db.String(), nullable=False)
@@ -65,10 +66,6 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
-
-
-
-
 
 
 # class Mentor(db.Model, UserMixin):

@@ -11,6 +11,9 @@ from flask_session import Session
 from flask_mail import Message
 
 
+
+
+
 @app.route("/")
 @app.route("/index")
 def index():
@@ -32,18 +35,18 @@ def register():
         # print(form.languages.data) ['cpp', 'python']
 
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        mentee = Mentee(
+        user = User(
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             email=form.email.data,
             password=hashed_password,
             account_type='mentee',
 
-            interests = form.interests.data,
-            languages = form.languages.data
+            interests = str(form.interests.data),
+            languages = str(form.languages.data)
         )
         
-        db.session.add(mentee)
+        db.session.add(user)
         db.session.commit()
         print(f"Registered new Mentee! {form.first_name.data} {form.last_name.data}")
 
