@@ -10,76 +10,91 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-class Mentor(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(120), nullable=False)
-    last_name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
-
-    languages = db.Column(db.String())  # 'cpp:python:javascript'
-    # interests = db.Column(db.String())
-
-    # Mentor can have mentees
-    mentees = db.relationship('Mentee', backref='mentor', lazy=True)
-    meetings = db.relationship('Meeting', backref='mentor_id', lazy=True)
-
-
-class Mentee(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(120), nullable=False)
-    last_name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
-
-    languages = db.Column(db.String())
-    # interests = db.Column(db.String())
-
-    meetings = db.relationship('Meeting', backref='mentee_id', lazy=True)
-
-    # 'mentor' object connecting to mentor table
-
+# Association Table for many-to-many relationship
+user_meeting = db.Table('user_meeting',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('meeting_id', db.Integer, db.ForeignKey('channel.id'))
+)
 
 class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # mentor_id
-    # mentee_id
-    time = db.Column(db.String())
-    # Format of time
-    '''
-    date|start|stop
-    ; split
+    start = db.Column(DateTime(), nullable=False)
+    end = db.Column(DateTime(), nullable=False)
+    # 'members' backref from User
+   
 
-    - 24 hour clock
-    - in UTC
-    Ex:
-    4/6|15:30|16:30 4/7|11:00|12:00
-    '''
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
+    password = db.Column(db.String(60), nullable=False)
+    
+    # mentor, mentee, admin
+    account_type = db.Column(db.String(20), nullable=False)
 
-# class User(db.Model, UserMixin):
+    # if User is a mentee, stores mentor
+    mentor_id = db.Column(db.Integer)
+
+    # storing mentees id in a space seperated string for now
+    # Ex:
+    # 1 4 20
+    mentees_id = db.Column(db.String())
+
+    # Connecting Users and Meetings with association table
+    meetings = db.relationship('Meeting', secondary=user_meeting, backref='members')
+
+
+    # TODO: setup password reset
+    # def get_reset_token(self, expires_sec=1800):
+    #     s = Serializer(app.config['SECRET_KEY'], expires_sec)
+    #     return s.dumps({'user_id': self.id}).decode('utf-8')
+
+    # @staticmethod
+    # def verify_reset_token(token):
+    #     s = Serializer(app.config['SECRET_KEY'])
+    #     try:
+    #         user_id = s.loads(token)['user_id']
+    #     except:
+    #         return None
+    #     return User.query.get(user_id)
+
+    def __repr__(self):
+        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+
+
+
+
+
+
+# class Mentor(db.Model, UserMixin):
 #     id = db.Column(db.Integer, primary_key=True)
-#     username = db.Column(db.String(20), unique=True, nullable=False)
+#     first_name = db.Column(db.String(120), nullable=False)
+#     last_name = db.Column(db.String(120), nullable=False)
 #     email = db.Column(db.String(120), unique=True, nullable=False)
-#     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
 #     password = db.Column(db.String(60), nullable=False)
-#     posts = db.relationship('Post', backref='author', lazy=True)
 
-#     def get_reset_token(self, expires_sec=1800):
-#         s = Serializer(app.config['SECRET_KEY'], expires_sec)
-#         return s.dumps({'user_id': self.id}).decode('utf-8')
+#     languages = db.Column(db.String())  # 'cpp:python:javascript'
+#     # interests = db.Column(db.String())
 
-#     @staticmethod
-#     def verify_reset_token(token):
-#         s = Serializer(app.config['SECRET_KEY'])
-#         try:
-#             user_id = s.loads(token)['user_id']
-#         except:
-#             return None
-#         return User.query.get(user_id)
+#     # Mentor can have mentees
+#     mentees = db.relationship('Mentee', backref='mentor', lazy=True)
+#     meetings = db.relationship('Meeting', backref='mentor_id', lazy=True)
 
-#     def __repr__(self):
-#         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
+# class Mentee(db.Model, UserMixin):
+#     id = db.Column(db.Integer, primary_key=True)
+#     first_name = db.Column(db.String(120), nullable=False)
+#     last_name = db.Column(db.String(120), nullable=False)
+#     email = db.Column(db.String(120), unique=True, nullable=False)
+#     password = db.Column(db.String(60), nullable=False)
+
+#     languages = db.Column(db.String())
+#     # interests = db.Column(db.String())
+
+#     meetings = db.relationship('Meeting', backref='mentee_id', lazy=True)
+
+    # 'mentor' object connecting to mentor table
 
 # class Post(db.Model):
 #     id = db.Column(db.Integer, primary_key=True)
