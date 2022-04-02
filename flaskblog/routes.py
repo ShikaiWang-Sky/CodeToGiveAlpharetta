@@ -32,7 +32,7 @@ def register():
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        # print(form.languages.data) ['cpp', 'python']
+        
 
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(
@@ -92,6 +92,21 @@ def save_picture(form_picture):
     i.save(picture_path)
 
     return picture_fn
+
+
+
+# LOGIN REQUIRED ROUTES
+
+@app.route("/home")
+@login_required
+def home():
+    if current_user.account_type == 'mentor':
+        return render_template("mentor-home.html")
+    elif current_user.account_type == 'mentee':
+        return render_template("mentee-home.html")
+    elif current_user.account_type == 'admin':
+        return render_template("admin-home.html")
+
 
 
 @app.route("/account", methods=['GET', 'POST'])
