@@ -40,8 +40,8 @@ def register():
             password=hashed_password
         )
         # user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        # db.session.add(user)
-        # db.session.commit()
+        # db.session.add(user) <-- prepare for change
+        # db.session.commit() <-- when site.db gets modified
 
         # CONNECT WITH DATABASE
         
@@ -111,81 +111,6 @@ def account():
                            image_file=image_file, form=form)
 
 
-@app.route("/post/new", methods=['GET', 'POST'])
-@login_required
-def new_post():
-    form = PostForm()
-    if form.validate_on_submit():
-        post = Post(title=form.title.data, content=form.content.data, author=current_user)
-        db.session.add(post)
-        db.session.commit()
-        flash('Your post has been created!', 'success')
-        return redirect(url_for('home'))
-    return render_template('create_post.html', title='New Post',
-                           form=form, legend='New Post')
-
-
-@app.route("/post/<int:post_id>")
-def post(post_id):
-    post = Post.query.get_or_404(post_id)
-    return render_template('post.html', title=post.title, post=post)
-
-
-@app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
-@login_required
-def update_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)
-    form = PostForm()
-    if form.validate_on_submit():
-        post.title = form.title.data
-        post.content = form.content.data
-        db.session.commit()
-        flash('Your post has been updated!', 'success')
-        return redirect(url_for('post', post_id=post.id))
-    elif request.method == 'GET':
-        form.title.data = post.title
-        form.content.data = post.content
-    return render_template('create_post.html', title='Update Post',
-                           form=form, legend='Update Post')
-
-
-@app.route("/post/<int:post_id>/delete", methods=['POST'])
-@login_required
-def delete_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)
-    db.session.delete(post)
-    db.session.commit()
-    flash('Your post has been deleted!', 'success')
-    return redirect(url_for('home'))
-
-
-@app.route("/user/<string:username>")
-def user_posts(username):
-    page = request.args.get('page', 1, type=int)
-    user = User.query.filter_by(username=username).first_or_404()
-    posts = Post.query.filter_by(author=user)\
-        .order_by(Post.date_posted.desc())\
-        .paginate(page=page, per_page=5)
-    return render_template('user_posts.html', posts=posts, user=user)
-
-
-def send_reset_email(user):
-    token = user.get_reset_token()
-    msg = Message('Password Reset Request',
-                  sender='noreply@demo.com',
-                  recipients=[user.email])
-    msg.body = f'''To reset your password, visit the following link:
-{url_for('reset_token', token=token, _external=True)}
-
-If you did not make this request then simply ignore this email and no changes will be made.
-'''
-    mail.send(msg)
-
-
 @app.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
     if current_user.is_authenticated:
@@ -215,3 +140,36 @@ def reset_token(token):
         flash('Your password has been updated! You are now able to log in', 'success')
         return redirect(url_for('login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
+
+
+
+
+# ADMIN STUFF
+
+@app.route("/admin", methods=['GET', 'POST'])
+def admin():
+    if current_user.is_authenticated and session['user'] == 'admin':
+        return redirect(url_for('manage'))
+
+    form = LoginForm()
+    if form.validate_on_submit():
+        admin = Admin.query.filter_by(email=form.email.data).first()
+
+        if admin and bcrypt.check_password_hash(admin.password, form.password.data):
+            login_user(admin, remember=form.remember.data)
+            return redirect(url_for('manage'))
+        else:
+            flash('Login Unsuccessful. Please check email and password', 'danger')
+    
+    return render_template('admin.html', title='Admin Login', form=form)
+
+
+@app.route('/manage', methods=['GET'])
+@login_required
+def manage():
+    if session['user'] == 'admin':
+        mentees = Mentee.query.all()
+        mentors = Mentor.query.all()
+        return render_template("manage.html", title='Admin Portal', mentees=mentees, mentors=mentors)
+    else:
+        redirect(url_for('index'))
