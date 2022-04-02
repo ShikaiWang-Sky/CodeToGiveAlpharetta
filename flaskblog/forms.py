@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectMultipleField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectMultipleField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from flaskblog.models import User
+# from flaskblog.models import User
 
 
 # Registration Forms for Mentees
@@ -37,6 +37,11 @@ class LoginForm(FlaskForm):
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
+    role = SelectField('Role', validators=[DataRequired()], choices=[
+        ('mentee', 'Mentee'),
+        ('mentor', 'Mentor'),
+        ('admin', 'Admin')
+    ])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 

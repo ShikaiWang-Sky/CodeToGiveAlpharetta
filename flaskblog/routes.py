@@ -2,7 +2,7 @@ import os
 import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort, session
-from flaskblog import app, db, bcrypt, mail
+from flaskblog import app, db, bcrypt
 from flaskblog.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                              ResetPasswordForm)
 from flaskblog.models import Mentor, Mentee, Meeting
@@ -15,8 +15,8 @@ from flask_mail import Message
 @app.route("/home")
 def home():
     page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('home.html', posts=posts)
+    # posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    return render_template('home.html')
 
 
 @app.route("/about")
@@ -100,10 +100,13 @@ def logout():
     logout_user()
     user_type = session.get('user', None)
     if not user_type:
+        session.clear()
         return redirect(url_for('mentor-home'))
     elif user_type == 'mentee':
+        session.clear()
         return redirect(url_for('mentee-home'))
     else:
+        session.clear()
         return redirect(url_for('home'))
 
 
