@@ -1,25 +1,31 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectMultipleField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flaskblog.models import User
 
 
+
+# Registration Forms for Mentees
 class RegistrationForm(FlaskForm):
-    username = StringField('Username',
-                           validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('Email',
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+    email = StringField('Email', 
                         validators=[DataRequired(), Email()])
+
+    languages = SelectMultipleField(u'Programming Language', choices=[
+        ('cpp', 'C++'),
+        ('py', 'Python'),
+        ('java', 'Java'),
+        ('html/css', 'HTML/CSS'),
+        ('javascript', 'Javascript')
+    ])
+
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
-
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('That username is taken. Please choose a different one.')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
@@ -27,6 +33,7 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('That email is taken. Please choose a different one.')
 
 
+# Login form for mentee/mentor
 class LoginForm(FlaskForm):
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
@@ -36,18 +43,15 @@ class LoginForm(FlaskForm):
 
 
 class UpdateAccountForm(FlaskForm):
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
     picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
     submit = SubmitField('Update')
-
-    def validate_username(self, username):
-        if username.data != current_user.username:
-            user = User.query.filter_by(username=username.data).first()
-            if user:
-                raise ValidationError('That username is taken. Please choose a different one.')
 
     def validate_email(self, email):
         if email.data != current_user.email:
@@ -56,21 +60,19 @@ class UpdateAccountForm(FlaskForm):
                 raise ValidationError('That email is taken. Please choose a different one.')
 
 
-class PostForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
-    content = TextAreaField('Content', validators=[DataRequired()])
-    submit = SubmitField('Post')
 
 
-class RequestResetForm(FlaskForm):
-    email = StringField('Email',
-                        validators=[DataRequired(), Email()])
-    submit = SubmitField('Request Password Reset')
+# No email setup, commented out for now
+# class RequestResetForm(FlaskForm):
+#     email = StringField('Email',
+#                         validators=[DataRequired(), Email()])
+#     submit = SubmitField('Request Password Reset')
 
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user is None:
-            raise ValidationError('There is no account with that email. You must register first.')
+#     def validate_email(self, email):
+#         user = User.query.filter_by(email=email.data).first()
+#         if user is None:
+#             raise ValidationError('There is no account with that email. You must register first.')
+
 
 
 class ResetPasswordForm(FlaskForm):
