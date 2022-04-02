@@ -5,18 +5,16 @@ from flask import render_template, url_for, flash, redirect, request, abort, ses
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                              ResetPasswordForm)
-from flaskblog.models import Mentor, Mentee, Meeting
+from flaskblog.models import User, Meeting
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_session import Session
 from flask_mail import Message
 
 
 @app.route("/")
-@app.route("/home")
-def home():
-    page = request.args.get('page', 1, type=int)
-    # posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('home.html')
+@app.route("/index")
+def index():
+    return render_template('index.html')
 
 
 @app.route("/about")
@@ -24,6 +22,7 @@ def about():
     return render_template('about.html', title='About')
 
 
+# Registration for mentees
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -37,77 +36,45 @@ def register():
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             email=form.email.data,
-            password=hashed_password
+            password=hashed_password,
+            account_type='mentee',
+
+            interests = form.interests.data,
+            languages = form.languages.data
         )
-        # save user type as session
-        session['user'] = 'mentee'
+        
         db.session.add(mentee)
         db.session.commit()
-
-        # user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        # db.session.add(user) <-- prepare for change
-        # db.session.commit() <-- when site.db gets modified
+        print(f"Registered new Mentee! {form.first_name.data} {form.last_name.data}")
 
         # CONNECT WITH DATABASE
 
         flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
-    return render_template('mentee_home.html', title='Register', form=form)
+    return render_template('register.html', title='Register', form=form)
 
 
+# Login for both mentees/mentors
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        # user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
 
-        # Query both Mentor and Mentee tables, login if exists
-        # render mentee_home/mentor_home
-        user_type = session.get('user', None)
-        # no session, mentor
-        if not user_type:
-            mentor = Mentor.query.filter_by(email=form.email.data).first()
-            if mentor and bcrypt.check_password_hash(mentor.password, form.password.data):
-                login_user(mentor, remember=form.remember.data)
-                next_page = request.args.get('next')
-                return redirect(next_page) if next_page else redirect(url_for('mentor-home'))
-            else:
-                flash('Login Unsuccessful. Please check email and password', 'danger')
-        elif user_type == 'mentee':
-            mentee = Mentee.query.filter_by(email=form.email.data).first()
-            if mentee and bcrypt.check_password_hash(mentee.password, form.password.data):
-                login_user(mentee, remember=form.remember.data)
-                next_page = request.args.get('next')
-                return redirect(next_page) if next_page else redirect(url_for('mentee-home'))
-            else:
-                flash('Login Unsuccessful. Please check email and password', 'danger')
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data) # Set cookies to login
+            return redirect(url_for('home')) # Return redirect to home
         else:
-            flash(f'Current user_type is ${user_type}, please check', 'danger')
-
-        # if user and bcrypt.check_password_hash(user.password, form.password.data):
-        #     login_user(user, remember=form.remember.data)
-        #     next_page = request.args.get('next')
-        #     return redirect(next_page) if next_page else redirect(url_for('home'))
-        # else:
-        #     flash('Login Unsuccessful. Please check email and password', 'danger')
+            flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
 
 
 @app.route("/logout")
 def logout():
     logout_user()
-    user_type = session.get('user', None)
-    if not user_type:
-        session.clear()
-        return redirect(url_for('mentor-home'))
-    elif user_type == 'mentee':
-        session.clear()
-        return redirect(url_for('mentee-home'))
-    else:
-        session.clear()
-        return redirect(url_for('home'))
+    return redirect(url_for('index'))
 
 
 def save_picture(form_picture):
@@ -132,19 +99,31 @@ def account():
         if form.picture.data:
             picture_file = save_picture(form.picture.data)
             current_user.image_file = picture_file
-        current_user.username = form.username.data
+
+        current_user.first_name = form.first_name.data
+        current_user.last_name = form.last_name.data
         current_user.email = form.email.data
+
+        current_user.interests = form.interests.data
+        current_user.languages = form.languages.data
+        
         db.session.commit()
         flash('Your account has been updated!', 'success')
         return redirect(url_for('account'))
     elif request.method == 'GET':
-        form.username.data = current_user.username
+        form.first_name.data = current_user.first_name
+        form.last_name.data = current_user.last_name
         form.email.data = current_user.email
+
+        form.interests.data = current_user.interests
+        form.languages.data = current_user.languages
+
     image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     return render_template('account.html', title='Account',
                            image_file=image_file, form=form)
 
 
+# TODO: Modify reset_password
 @app.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
     if current_user.is_authenticated:
@@ -158,48 +137,30 @@ def reset_request():
     return render_template('reset_request.html', title='Reset Password', form=form)
 
 
-@app.route("/reset_password/<token>", methods=['GET', 'POST'])
-def reset_token(token):
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    user = User.verify_reset_token(token)
-    if user is None:
-        flash('That is an invalid or expired token', 'warning')
-        return redirect(url_for('reset_request'))
-    form = ResetPasswordForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user.password = hashed_password
-        db.session.commit()
-        flash('Your password has been updated! You are now able to log in', 'success')
-        return redirect(url_for('login'))
-    return render_template('reset_token.html', title='Reset Password', form=form)
+# @app.route("/reset_password/<token>", methods=['GET', 'POST'])
+# def reset_token(token):
+#     if current_user.is_authenticated:
+#         return redirect(url_for('home'))
+#     user = User.verify_reset_token(token)
+#     if user is None:
+#         flash('That is an invalid or expired token', 'warning')
+#         return redirect(url_for('reset_request'))
+#     form = ResetPasswordForm()
+#     if form.validate_on_submit():
+#         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+#         user.password = hashed_password
+#         db.session.commit()
+#         flash('Your password has been updated! You are now able to log in', 'success')
+#         return redirect(url_for('login'))
+#     return render_template('reset_token.html', title='Reset Password', form=form)
 
 
 # ADMIN STUFF
 
-@app.route("/admin", methods=['GET', 'POST'])
-def admin():
-    if current_user.is_authenticated and session['user'] == 'admin':
-        return redirect(url_for('manage'))
-
-    form = LoginForm()
-    if form.validate_on_submit():
-        admin = Admin.query.filter_by(email=form.email.data).first()
-
-        if admin and bcrypt.check_password_hash(admin.password, form.password.data):
-            login_user(admin, remember=form.remember.data)
-            return redirect(url_for('manage'))
-        else:
-            flash('Login Unsuccessful. Please check email and password', 'danger')
-
-    return render_template('admin.html', title='Admin Login', form=form)
-
-
 @app.route('/manage', methods=['GET'])
 @login_required
 def manage():
-    if session['user'] == 'admin':
+    if current_user.account_type == 'admin':
         mentees = Mentee.query.all()
         mentors = Mentor.query.all()
         return render_template("manage.html", title='Admin Portal', mentees=mentees, mentors=mentors)

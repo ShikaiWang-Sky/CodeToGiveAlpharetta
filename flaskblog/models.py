@@ -4,7 +4,6 @@ from flaskblog import db, login_manager, app
 from flask_login import UserMixin
 
 
-# How will the backend know if the user is a Mentor or Mentee?
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -13,19 +12,21 @@ def load_user(user_id):
 # Association Table for many-to-many relationship
 user_meeting = db.Table('user_meeting',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('meeting_id', db.Integer, db.ForeignKey('channel.id'))
+    db.Column('meeting_id', db.Integer, db.ForeignKey('meeting.id'))
 )
 
 class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    start = db.Column(DateTime(), nullable=False)
-    end = db.Column(DateTime(), nullable=False)
+    start = db.Column(db.DateTime(), nullable=False)
+    end = db.Column(db.DateTime(), nullable=False)
     # 'members' backref from User
    
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
+    # username = db.Column(db.String(20), unique=True, nullable=False)
+    first_name = db.Column(db.String(), nullable=False)
+    last_name = db.Column(db.String(), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
