@@ -57,7 +57,27 @@ class UpdateAccountForm(FlaskForm):
                            validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
-    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
+
+    languages = SelectMultipleField(u'Programming Language', choices=[
+        ('cpp', 'C++'),
+        ('py', 'Python'),
+        ('java', 'Java'),
+        ('html/css', 'HTML/CSS'),
+        ('javascript', 'Javascript')
+    ])
+
+    interests = SelectMultipleField(u'Interests', choices =[
+        ('health', 'Health'),
+        ('finance', 'Finance'),
+        ('data', 'Data Science'),
+        ('backend', 'Backend'),
+        ('frontend', 'Frontend')
+    ])
+
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[DataRequired(), EqualTo('password')])
+                                     
     submit = SubmitField('Update')
 
     def validate_email(self, email):
