@@ -1,12 +1,13 @@
 import os
 import secrets
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort
+from flask import render_template, url_for, flash, redirect, request, abort, session
 from flaskblog import app, db, bcrypt, mail
 from flaskblog.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                              ResetPasswordForm)
 from flaskblog.models import Mentor, Mentee, Meeting
 from flask_login import login_user, current_user, logout_user, login_required
+from flask_session import Session
 from flask_mail import Message
 
 
@@ -29,22 +30,26 @@ def register():
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-
         # print(form.languages.data) ['cpp', 'python']
 
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        mentee = mentee(
+        mentee = Mentee(
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             email=form.email.data,
             password=hashed_password
         )
+        # save user type as session
+        session['user'] = 'mentee'
+        db.session.add(mentee)
+        db.session.commit()
+
         # user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         # db.session.add(user) <-- prepare for change
         # db.session.commit() <-- when site.db gets modified
 
         # CONNECT WITH DATABASE
-        
+
         flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
     return render_template('mentee_home.html', title='Register', form=form)
@@ -57,23 +62,49 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         # user = User.query.filter_by(email=form.email.data).first()
-        
+
         # Query both Mentor and Mentee tables, login if exists
         # render mentee_home/mentor_home
-
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('home'))
+        user_type = session.get('user', None)
+        # no session, mentor
+        if not user_type:
+            mentor = Mentor.query.filter_by(email=form.email.data).first()
+            if mentor and bcrypt.check_password_hash(mentor.password, form.password.data):
+                login_user(mentor, remember=form.remember.data)
+                next_page = request.args.get('next')
+                return redirect(next_page) if next_page else redirect(url_for('mentor-home'))
+            else:
+                flash('Login Unsuccessful. Please check email and password', 'danger')
+        elif user_type == 'mentee':
+            mentee = Mentee.query.filter_by(email=form.email.data).first()
+            if mentee and bcrypt.check_password_hash(mentee.password, form.password.data):
+                login_user(mentee, remember=form.remember.data)
+                next_page = request.args.get('next')
+                return redirect(next_page) if next_page else redirect(url_for('mentee-home'))
+            else:
+                flash('Login Unsuccessful. Please check email and password', 'danger')
         else:
-            flash('Login Unsuccessful. Please check email and password', 'danger')
+            flash(f'Current user_type is ${user_type}, please check', 'danger')
+
+        # if user and bcrypt.check_password_hash(user.password, form.password.data):
+        #     login_user(user, remember=form.remember.data)
+        #     next_page = request.args.get('next')
+        #     return redirect(next_page) if next_page else redirect(url_for('home'))
+        # else:
+        #     flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
 
 
 @app.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    user_type = session.get('user', None)
+    if not user_type:
+        return redirect(url_for('mentor-home'))
+    elif user_type == 'mentee':
+        return redirect(url_for('mentee-home'))
+    else:
+        return redirect(url_for('home'))
 
 
 def save_picture(form_picture):
@@ -142,8 +173,6 @@ def reset_token(token):
     return render_template('reset_token.html', title='Reset Password', form=form)
 
 
-
-
 # ADMIN STUFF
 
 @app.route("/admin", methods=['GET', 'POST'])
@@ -160,7 +189,7 @@ def admin():
             return redirect(url_for('manage'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
-    
+
     return render_template('admin.html', title='Admin Login', form=form)
 
 

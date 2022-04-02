@@ -4,7 +4,6 @@ from flaskblog import db, login_manager, app
 from flask_login import UserMixin
 
 
-
 # How will the backend know if the user is a Mentor or Mentee?
 @login_manager.user_loader
 def load_user(user_id):
@@ -18,12 +17,13 @@ class Mentor(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
 
-    languages = db.Column(db.String()) # 'cpp:python:javascript'
+    languages = db.Column(db.String())  # 'cpp:python:javascript'
     # interests = db.Column(db.String())
 
     # Mentor can have mentees
     mentees = db.relationship('Mentee', backref='mentor', lazy=True)
     meetings = db.relationship('Meeting', backref='mentor_id', lazy=True)
+
 
 class Mentee(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -36,9 +36,8 @@ class Mentee(db.Model, UserMixin):
     # interests = db.Column(db.String())
 
     meetings = db.relationship('Meeting', backref='mentee_id', lazy=True)
-    
-    # 'mentor' object connecting to mentor table
 
+    # 'mentor' object connecting to mentor table
 
 
 class Meeting(db.Model):
@@ -56,10 +55,6 @@ class Meeting(db.Model):
     Ex:
     4/6|15:30|16:30 4/7|11:00|12:00
     '''
-
-
-
-
 
 # class User(db.Model, UserMixin):
 #     id = db.Column(db.Integer, primary_key=True)

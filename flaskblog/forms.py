@@ -6,12 +6,11 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from flaskblog.models import User
 
 
-
 # Registration Forms for Mentees
 class RegistrationForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
     last_name = StringField('Last Name', validators=[DataRequired()])
-    email = StringField('Email', 
+    email = StringField('Email',
                         validators=[DataRequired(), Email()])
 
     languages = SelectMultipleField(u'Programming Language', choices=[
@@ -60,8 +59,6 @@ class UpdateAccountForm(FlaskForm):
                 raise ValidationError('That email is taken. Please choose a different one.')
 
 
-
-
 # No email setup, commented out for now
 # class RequestResetForm(FlaskForm):
 #     email = StringField('Email',
@@ -72,7 +69,6 @@ class UpdateAccountForm(FlaskForm):
 #         user = User.query.filter_by(email=email.data).first()
 #         if user is None:
 #             raise ValidationError('There is no account with that email. You must register first.')
-
 
 
 class ResetPasswordForm(FlaskForm):
