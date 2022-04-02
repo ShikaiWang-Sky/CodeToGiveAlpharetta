@@ -33,6 +33,9 @@ class User(db.Model, UserMixin):
     # mentor, mentee, admin
     account_type = db.Column(db.String(20), nullable=False)
 
+    interests = db.Column(db.String())
+    languages = db.Column(db.String())
+
     # if User is a mentee, stores mentor
     mentor_id = db.Column(db.Integer)
 
