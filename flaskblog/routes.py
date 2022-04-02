@@ -5,7 +5,7 @@ from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt, mail
 from flaskblog.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                              ResetPasswordForm)
-from flaskblog.models import User, Post
+from flaskblog.models import Mentor, Mentee, Meeting
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
@@ -30,9 +30,15 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
 
-        # print(form.languages.data)
+        # print(form.languages.data) ['cpp', 'python']
 
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        mentee = mentee(
+            first_name=form.first_name.data,
+            last_name=form.last_name.data,
+            email=form.email.data,
+            password=hashed_password
+        )
         # user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         # db.session.add(user)
         # db.session.commit()
@@ -41,7 +47,7 @@ def register():
         
         flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+    return render_template('mentee_home.html', title='Register', form=form)
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -50,7 +56,11 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        # user = User.query.filter_by(email=form.email.data).first()
+        
+        # Query both Mentor and Mentee tables, login if exists
+        # render mentee_home/mentor_home
+
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
