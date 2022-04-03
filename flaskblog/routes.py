@@ -98,11 +98,11 @@ def save_picture(form_picture):
 def home():
     if current_user.account_type == 'mentor':
         mentees = User.query.filter_by(account_type='mentee').all()
-        return render_template("mentor-home.html", title="Home", mentees=mentees)
+        return render_template("mentor-home.html", title="Home", mentees=mentees, current_user=current_user)
 
     elif current_user.account_type == 'mentee':
         mentors = User.query.filter_by(account_type='mentor').all()
-        return render_template("mentee-home.html", title="Home", mentors=mentors)
+        return render_template("mentee-home.html", title="Home", mentors=mentors, current_user=current_user)
 
     elif current_user.account_type == 'admin':
         mentees = User.query.filter_by(account_type='mentee').all()
@@ -171,24 +171,24 @@ def reset_request():
     return render_template('reset_request.html', title='Reset Password', form=form)
 
 
+# For mentors to edit their schedule
+@app.route('/schedule')
+@login_required
+def schedule():
+    if current_user.account_type == 'mentor':
+        return render_template("schedule.html")
+    else:
+        flash("An error occured", 'warning')
+        return redirect(url_for('home'))
 
 
-# @app.route("/reset_password/<token>", methods=['GET', 'POST'])
-# def reset_token(token):
-#     if current_user.is_authenticated:
-#         return redirect(url_for('home'))
-#     user = User.verify_reset_token(token)
-#     if user is None:
-#         flash('That is an invalid or expired token', 'warning')
-#         return redirect(url_for('reset_request'))
-#     form = ResetPasswordForm()
-#     if form.validate_on_submit():
-#         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-#         user.password = hashed_password
-#         db.session.commit()
-#         flash('Your password has been updated! You are now able to log in', 'success')
-#         return redirect(url_for('login'))
-#     return render_template('reset_token.html', title='Reset Password', form=form)
+# For mentees to view mentor's schedule
+@app.route('/schedule/<id>', methods=['GET', 'POST'])
+@login_required
+def mentor_schedule(id):
+    mentor_id = int(id)
+    if current_user.account_type == 'mentee':
+        return render_template("schedule.html")
 
 
 # ADMIN STUFF
