@@ -18,7 +18,7 @@
           selectable: true,
           contentHeight: 600,
           aspectRatio: 2,
-          allDaySlot: true,
+          allDaySlot: false,
           slotMinTime: '08:00:00',
           slotMaxTime: '18:00:00',
           slotDuration: '00:60:00',
@@ -34,6 +34,10 @@
                 end: end_time,
               });
               console.log('Ran');
+          },
+
+          eventClick: function(info) {
+              info.event.remove();
           }
 
         });       
