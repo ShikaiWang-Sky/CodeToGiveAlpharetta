@@ -15,12 +15,18 @@
           nowIndicator: true,
           editable: true, // enable draggable events
           expandRows: true,
+          selectable: true,
           contentHeight: 600,
           aspectRatio: 2,
           allDaySlot: false,
           slotMinTime: '08:00:00',
           slotMaxTime: '18:00:00',
-          slotDuration: '00:60:00'
+          slotDuration: '00:60:00',
+
+          select: function(info) {
+              alert('Selected ' + info.startStr + ' to ' + info.endStr);
+          }
+
         });
 
         calendar.render();

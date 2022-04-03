@@ -2,27 +2,6 @@
 
 <!-- https://fullcalendar.io/docs -->
 
-{% block stylesheet %}
-    <link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='fullcalendar/lib/main.css') }}"/>
-    <script src="{{ url_for('static', filename='fullcalendar/lib/main.js')}}"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'timeGridWeek',
-
-          editable: true, // enable draggable events
-
-        });
-
-        calendar.render();
-      });
-    </script>
-
-{% endblock stylesheet %}
-
 
 {% block content %}
     <div class="row justify-content-evenly">
