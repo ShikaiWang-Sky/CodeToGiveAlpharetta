@@ -1,4 +1,16 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1>Mentee Home</h1>
-{% endblock content %}
+    
+    <div class="container-fluid">
+        {% if mentors %}
+        <ul>
+        {% for m in mentors %}
+            <li>{{ m.first_name }} {{ m.last_name }}</li>
+        {% endfor %}
+        </ul>
+        {% else %}
+            Sorry, there are no mentors currently available!
+        {% endif %}
+    </div>
+{% endblock %}

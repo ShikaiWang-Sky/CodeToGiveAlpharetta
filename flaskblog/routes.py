@@ -97,11 +97,21 @@ def save_picture(form_picture):
 @login_required
 def home():
     if current_user.account_type == 'mentor':
-        return render_template("mentor-home.html")
+        mentees = User.query.filter_by(account_type='mentee').all()
+        return render_template("mentor-home.html", title="Home", mentees=mentees)
+
     elif current_user.account_type == 'mentee':
-        return render_template("mentee-home.html")
+        mentors = User.query.filter_by(account_type='mentor').all()
+        return render_template("mentee-home.html", title="Home", user=user, mentors=mentors)
+
     elif current_user.account_type == 'admin':
-        return render_template("admin-home.html")
+        mentees = User.query.filter_by(account_type='mentee').all()
+        mentors = User.query.filter_by(account_type='mentor').all()
+        return render_template("admin-home.html", title="Home", mentees=mentees, mentors=mentors)
+    else:
+        # If an user somehow is not one of the three account_types
+        flash("An error occured", "danger")
+        return redirect(url_for('logout'))
 
 
 
@@ -159,6 +169,8 @@ def reset_request():
         flash('An email has been sent with instructions to reset your password.', 'info')
         return redirect(url_for('login'))
     return render_template('reset_request.html', title='Reset Password', form=form)
+
+
 
 
 # @app.route("/reset_password/<token>", methods=['GET', 'POST'])
