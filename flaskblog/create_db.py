@@ -79,8 +79,37 @@ def init_db():
         account_type='admin'
     )
 
+    mentee = User(
+        first_name='Bob',
+        last_name='McDonald',
+        email='bob@mail.com',
+        password=hashed_password,
+        account_type='mentee',
+        languages='["py", "java"]',
+        interests='["health", "finance"]'
+    )
 
-    db.session.add_all([admin])
+    mentor1 = User(
+        first_name='Sal',
+        last_name='Khan',
+        email='sal@mail.com',
+        password=hashed_password,
+        account_type='mentor',
+        languages='["py", "cpp"]',
+        interests='["data", "finance"]'
+    )
+
+    mentor2 = User(
+        first_name='Albert',
+        last_name='Einstein',
+        email='albert@mail.com',
+        password=hashed_password,
+        account_type='mentor',
+        languages='["java"]',
+        interests='["health"]'
+    )
+
+    db.session.add_all([admin, mentee, mentor1, mentor2])
     db.session.commit()
     print("Database created!")
 

@@ -21,5 +21,11 @@ python run.py
 
 
 ## Testing Accounts
-Admin:
-    andre@mail.com:password
+Admins:
+- andre@mail.com:password
+
+Mentors:
+- sal@mail.com:password
+
+Mentees:
+- bob@mail.com:password
