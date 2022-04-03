@@ -180,20 +180,26 @@ def reset_request():
 @login_required
 def schedule():
     if current_user.account_type == 'mentor':
+        
+        # Save calendar memory into database
         if request.method == 'POST':
             data = request.form['data']
             data = json.loads(data)
 
             for d in data:
-                m = Meeting(
-                    mentor_id=current_user.id,
-                    start=d['start'],
-                    end=d['end'],
-                    title=d['title'],
-                )
-                db.session.add(m)            
+                # Checking for new events
+                m = Meeting.query.filter_by(mentor_id=int(current_user.id), start=str(d['start'])).first()
+                if not m:
+                    m = Meeting(
+                        mentee_id=-1,
+                        mentor_id=int(current_user.id),
+                        start=str(d['start']),
+                        end=str(d['end']),
+                        title=str(d['title']),
+                    )                
+                    db.session.add(m)
+                    print("Added event!")         
             db.session.commit()
-
 
         return render_template("schedule.html", meetings=current_user.meetings)
     else:

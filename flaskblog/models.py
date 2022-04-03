@@ -23,6 +23,14 @@ class Meeting(db.Model):
     title = db.Column(db.String(), nullable=False)
     mentor_id = db.Column(db.Integer(), nullable=False)
     mentee_id = db.Column(db.Integer())
+
+    def check_duplicates(self):
+        if int(self.mentor_id) == int(other.mentor_id):
+            if str(self.start) == str(other.start):
+                return True
+        else:
+            return False
+        pass
     # 'members' backref from User
    
 
