@@ -3,8 +3,8 @@
 <!-- https://fullcalendar.io/docs -->
 
 {% block stylesheet %}
-    <link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='fullcalendar/lib/main.css') }}"/>
-    <script src="{{ url_for('static', filename='fullcalendar/lib/main.js')}}"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/fullcalendar@5.1.0/main.min.css"/>
+    <script src="https://unpkg.com/fullcalendar@5.1.0/main.min.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -12,9 +12,15 @@
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'timeGridWeek',
-
+          nowIndicator: true,
           editable: true, // enable draggable events
-
+          expandRows: true,
+          contentHeight: 600,
+          aspectRatio: 2,
+          allDaySlot: false,
+          slotMinTime: '08:00:00',
+          slotMaxTime: '18:00:00',
+          slotDuration: '00:60:00'
         });
 
         calendar.render();
@@ -25,7 +31,6 @@
 
 
 {% block content %}
-    <h1>Mentor Home</h1>
     <div class="row">
         <div class="col-md-10 offset-md-1">
             <div id="calendar"></div>
