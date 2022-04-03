@@ -102,7 +102,7 @@ def home():
 
     elif current_user.account_type == 'mentee':
         mentors = User.query.filter_by(account_type='mentor').all()
-        return render_template("mentee-home.html", title="Home", user=user, mentors=mentors)
+        return render_template("mentee-home.html", title="Home", mentors=mentors)
 
     elif current_user.account_type == 'admin':
         mentees = User.query.filter_by(account_type='mentee').all()
