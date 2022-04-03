@@ -7,10 +7,8 @@ from flaskblog.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                              ResetPasswordForm)
 from flaskblog.models import User, Meeting
 from flask_login import login_user, current_user, logout_user, login_required
-from flask_session import Session
+#from flask_session import Session
 from flask_mail import Message
-
-
 
 
 
@@ -33,7 +31,6 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         
-
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(
             first_name=form.first_name.data,
@@ -113,31 +110,41 @@ def home():
 def account():
     form = UpdateAccountForm()
     if form.validate_on_submit():
-        if form.picture.data:
+        print("here")
+        """if form.picture.data:
             picture_file = save_picture(form.picture.data)
-            current_user.image_file = picture_file
+            current_user.image_file = picture_file"""
 
         current_user.first_name = form.first_name.data
         current_user.last_name = form.last_name.data
         current_user.email = form.email.data
 
-        current_user.interests = form.interests.data
-        current_user.languages = form.languages.data
-        
+        current_user.interests = str(form.interests.data)
+        current_user.languages = str(form.languages.data)
+
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        current_user.password=hashed_password
+
+        #user = User.query.filter_by(id=current_user.id)
+        #setattr(user, 'first_name', form.first_name.data)
+
         db.session.commit()
         flash('Your account has been updated!', 'success')
         return redirect(url_for('account'))
+
     elif request.method == 'GET':
         form.first_name.data = current_user.first_name
         form.last_name.data = current_user.last_name
         form.email.data = current_user.email
-
         form.interests.data = current_user.interests
         form.languages.data = current_user.languages
 
-    image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
-    return render_template('account.html', title='Account',
-                           image_file=image_file, form=form)
+    else:
+        flash('Error while submitting form.','danger')
+
+    #image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
+
+    return render_template('account.html', title='Account', form=form)
 
 
 # TODO: Modify reset_password

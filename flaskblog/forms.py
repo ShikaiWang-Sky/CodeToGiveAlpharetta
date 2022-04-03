@@ -52,12 +52,9 @@ class LoginForm(FlaskForm):
 class UpdateAccountForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
     last_name = StringField('Last Name', validators=[DataRequired()])
-
-    username = StringField('Username',
-                           validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
-    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
+    #picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
     languages = SelectMultipleField(u'Programming Language', choices=[
         ('cpp', 'C++'),
         ('py', 'Python'),
@@ -65,7 +62,6 @@ class UpdateAccountForm(FlaskForm):
         ('html/css', 'HTML/CSS'),
         ('javascript', 'Javascript')
     ])
-
     interests = SelectMultipleField(u'Interests', choices =[
         ('health', 'Health'),
         ('finance', 'Finance'),
