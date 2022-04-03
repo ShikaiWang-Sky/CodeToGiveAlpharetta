@@ -1,7 +1,7 @@
 import os
 import secrets
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort, session
+from flask import render_template, url_for, flash, redirect, request, abort, session, jsonify
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                              ResetPasswordForm)
@@ -199,6 +199,18 @@ def schedule():
         return render_template("schedule.html", meetings=current_user.meetings)
     else:
         flash("An error occured", 'warning')
+        return redirect(url_for('home'))
+
+
+# load schedule for mentor
+@app.route('/load_schedule', methods=['GET', 'POST'])
+@login_required
+def load_schedule():
+    if current_user.account_type == 'mentor':
+        meetings = Meeting.query.filter_by(mentor_id=current_user.id)
+        return jsonify(meetings=meetings)
+    else:
+        flash("An error occurred", 'warning')
         return redirect(url_for('home'))
 
 
