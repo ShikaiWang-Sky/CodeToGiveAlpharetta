@@ -31,8 +31,8 @@ user_meeting = db.Table('user_meeting',
 class Meeting(db.Model):
     __tablename__ = 'meetings'
     id = db.Column(db.Integer, primary_key=True)
-    start = db.Column(db.DateTime(), nullable=False)
-    end = db.Column(db.DateTime(), nullable=False)
+    start = db.Column(db.String(), nullable=False)
+    end = db.Column(db.String(), nullable=False)
 
     title = db.Column(db.String(), nullable=False)
     mentor_id = db.Column(db.Integer(), nullable=False)

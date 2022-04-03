@@ -181,11 +181,8 @@ def reset_request():
 def schedule():
     if current_user.account_type == 'mentor':
         if request.method == 'POST':
-            # [{"title":"Open Slot","start":"2022-04-04T08:00:00-04:00","end":"2022-04-04T12:00:00-04:00"}]
             data = request.form['data']
             data = json.loads(data)
-
-            print(data)
 
             for d in data:
                 m = Meeting(
@@ -194,8 +191,7 @@ def schedule():
                     end=d['end'],
                     title=d['title'],
                 )
-                db.session.add(m)
-            
+                db.session.add(m)            
             db.session.commit()
 
 

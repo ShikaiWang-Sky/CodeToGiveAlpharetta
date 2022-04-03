@@ -49,15 +49,13 @@
           customButtons: {
               saveToDatabase: {
                   text: 'Save Schedule',
-                  click: function() {
-                      alert('Works!');
-                      console.log(JSON.stringify(calendar.getEvents()));
-
+                  click: function() {                      
                       var data = JSON.stringify(calendar.getEvents());
-                      var xmlhttp = new XMLHttpRequest();
-                      xmlhttp.open('POST', '/schedule', true);
-                      xmlhttp.send("data=" + data);
-
+                      var req = new XMLHttpRequest();
+                      req.open('POST', '/schedule', true);
+                      req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
+                      req.send("data=" + data);
+                      alert('Schedule saved!');
                   },
               },
           },
