@@ -158,18 +158,21 @@ def account():
 
 
 # TODO: Modify reset_password
-@app.route("/reset_password", methods=['GET', 'POST'])
+@app.route("/reset_token", methods=['GET','POST'])
+@login_required
 def reset_request():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    form = RequestResetForm()
+    if not current_user.is_authenticated:
+        return redirect(url_for('register'))
+    form = ResetPasswordForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        send_reset_email(user)
-        flash('An email has been sent with instructions to reset your password.', 'info')
-        return redirect(url_for('login'))
-    return render_template('reset_request.html', title='Reset Password', form=form)
+        new_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        updated_user = User.query.filter_by(email=current_user.email).first()
+        updated_user.password = new_password
+        db.session.commit()
 
+        flash('You have successfully change your password', 'info')
+        # return redirect(url_for('home'))
+    return render_template('reset_token.html', title='resetPassword', form=form)
 
 # For mentors to edit their schedule
 @app.route('/schedule')
