@@ -33,6 +33,10 @@ class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     start = db.Column(db.DateTime(), nullable=False)
     end = db.Column(db.DateTime(), nullable=False)
+
+    title = db.Column(db.String(), nullable=False)
+    mentor_id = db.Column(db.Integer(), nullable=False)
+    mentee_id = db.Column(db.Integer())
     # 'members' backref from User
    
 

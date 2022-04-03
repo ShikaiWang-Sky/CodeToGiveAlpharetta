@@ -52,8 +52,14 @@
                   click: function() {
                       alert('Works!');
                       console.log(JSON.stringify(calendar.getEvents()));
-                  }
-              }
+
+                      var data = JSON.stringify(calendar.getEvents());
+                      var xmlhttp = new XMLHttpRequest();
+                      xmlhttp.open('POST', '/schedule', true);
+                      xmlhttp.send("data=" + data);
+
+                  },
+              },
           },
         });       
 

@@ -7,10 +7,9 @@ from flaskblog.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                              ResetPasswordForm)
 from flaskblog.models import User, Meeting
 from flask_login import login_user, current_user, logout_user, login_required
-from loguru import logger
-import json
-# from flask_session import Session
 from flask_mail import Message
+import json
+from loguru import logger
 
 
 @app.route("/")
@@ -173,13 +172,33 @@ def reset_request():
     return render_template('reset_token.html', title='resetPassword', form=form)
 
 
+
+
+
 # For mentors to edit their schedule
 @app.route('/schedule', methods=['GET', 'POST'])
 @login_required
 def schedule():
     if current_user.account_type == 'mentor':
         if request.method == 'POST':
-            pass
+            # [{"title":"Open Slot","start":"2022-04-04T08:00:00-04:00","end":"2022-04-04T12:00:00-04:00"}]
+            data = request.form['data']
+            data = json.loads(data)
+
+            print(data)
+
+            for d in data:
+                m = Meeting(
+                    mentor_id=current_user.id,
+                    start=d['start'],
+                    end=d['end'],
+                    title=d['title'],
+                )
+                db.session.add(m)
+            
+            db.session.commit()
+
+
         return render_template("schedule.html", meetings=current_user.meetings)
     else:
         flash("An error occured", 'warning')
