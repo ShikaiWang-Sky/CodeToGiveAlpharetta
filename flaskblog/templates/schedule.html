@@ -18,16 +18,25 @@
           selectable: true,
           contentHeight: 600,
           aspectRatio: 2,
-          allDaySlot: false,
+          allDaySlot: true,
           slotMinTime: '08:00:00',
           slotMaxTime: '18:00:00',
           slotDuration: '00:60:00',
 
           select: function(info) {
-              alert('Selected ' + info.startStr + ' to ' + info.endStr);
+              console.log(info.startStr);
+              console.log(info.endStr);
+              var start_time = new Date(info.startStr);
+              var end_time = new Date(info.endStr);
+              calendar.addEvent({
+                title: 'Open Slot',
+                start: start_time,
+                end: end_time,
+              });
+              console.log('Ran');
           }
 
-        });
+        });       
 
         calendar.render();
       });
