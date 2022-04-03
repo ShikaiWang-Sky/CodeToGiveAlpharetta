@@ -175,11 +175,13 @@ def reset_request():
     return render_template('reset_token.html', title='resetPassword', form=form)
 
 # For mentors to edit their schedule
-@app.route('/schedule')
+@app.route('/schedule', methods=['GET', 'POST'])
 @login_required
 def schedule():
     if current_user.account_type == 'mentor':
-        return render_template("schedule.html")
+        if request.method == 'POST':
+            pass
+        return render_template("schedule.html", meetings=current_user.meetings)
     else:
         flash("An error occured", 'warning')
         return redirect(url_for('home'))
