@@ -70,9 +70,9 @@ class UpdateAccountForm(FlaskForm):
         ('frontend', 'Frontend')
     ])
 
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), EqualTo('password')])
+    # password = PasswordField('Password')
+    # confirm_password = PasswordField('Confirm Password',
+    #                                  validators=[EqualTo('password')])
                                      
     submit = SubmitField('Update')
 

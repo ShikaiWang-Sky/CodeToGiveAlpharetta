@@ -122,8 +122,8 @@ def account():
         current_user.interests = str(form.interests.data)
         current_user.languages = str(form.languages.data)
 
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        current_user.password=hashed_password
+        # hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        # current_user.password=hashed_password
 
         #user = User.query.filter_by(id=current_user.id)
         #setattr(user, 'first_name', form.first_name.data)
