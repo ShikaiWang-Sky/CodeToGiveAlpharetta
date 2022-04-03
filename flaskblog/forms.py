@@ -54,7 +54,7 @@ class UpdateAccountForm(FlaskForm):
     last_name = StringField('Last Name', validators=[DataRequired()])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
-    #picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
+    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
     languages = SelectMultipleField(u'Programming Language', choices=[
         ('cpp', 'C++'),
         ('py', 'Python'),
