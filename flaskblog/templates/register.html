@@ -1,10 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
-    <div class="content-section">
+<div class="row justify-content-evenly">
+    <div class="col-md-4">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Join Today</legend>
+                <legend class="border-bottom mb-2">Join Today</legend>
                 <!-- First/Last Row -->
                 <div class="row">
                     <!-- First Name -->
@@ -116,14 +117,16 @@
                     {% endif %}
                 </div>
             </fieldset>
-            <div class="form-group">
+            <div class="form-group py-2">
                 {{ form.submit(class="btn btn-outline-info") }}
             </div>
         </form>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                Already Have An Account? <a class="ml-2" href="{{ url_for('login') }}">Sign In</a>
+            </small>
+        </div>
     </div>
-    <div class="border-top pt-3">
-        <small class="text-muted">
-            Already Have An Account? <a class="ml-2" href="{{ url_for('login') }}">Sign In</a>
-        </small>
-    </div>
+
+</div>
 {% endblock content %}
