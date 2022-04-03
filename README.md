@@ -26,6 +26,7 @@ Admins:
 
 Mentors:
 - sal@mail.com:password
+- albert@mail.com:password
 
 Mentees:
 - bob@mail.com:password
