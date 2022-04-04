@@ -1,12 +1,4 @@
-body {
-  font-family: tahoma;
-  height: 100vh;
-  background-image: url(https://picsum.photos/g/3000/2000);
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  align-items: center;
-}
+
 
 .our-team {
   padding: 30px 0 40px;
@@ -100,7 +92,7 @@ body {
   display: block;
   padding: 10px;
   font-size: 17px;
-  color: blue;
+  color: white;
   transition: all 0.3s ease 0s;
   text-decoration: none;
 }
