@@ -8,18 +8,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const get_data = function () {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', '/load_schedule', true);
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
-                xhr.send(null);
-                xhr.onreadystatechange = function () {
-                    if(xhr.readyState == 4 && xhr.status == 200) {
-                        const response = JSON.stringify(xhr.responseText);
-                        console.log(response)
-                    }
-                };
-            };
+
 
             var calendarEl = document.getElementById('calendar');
 
@@ -74,15 +63,32 @@
                             alert('Schedule saved!');
                         },
                     },
-                },
-
-                eventSource: [
-                    {
-                        url: '/load_schedule',
-                        method: 'POST'
-                    }
-                ]
+                }
             });
+
+            function get_data() {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/load_schedule', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
+                xhr.send(null);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        {#console.log(response.meetings)#}
+                        const events = []
+                        for (let i = 0; i < response.meetings.length; i++) {
+                            let event = {
+                                title: response.meetings[i].title,
+                                start: new Date(response.meetings[i].start),
+                                end: new Date(response.meetings[i].end),
+                            };
+                            events.push(event);
+                        }
+                        calendar.addEventSource(events);
+                    }
+                };
+            };
+            get_data();
 
             calendar.render();
         });
