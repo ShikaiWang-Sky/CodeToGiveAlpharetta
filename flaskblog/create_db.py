@@ -84,9 +84,9 @@ def init_db():
     )
 
     mentee = User(
-        first_name='Bob',
-        last_name='McDonald',
-        email='bob@mail.com',
+        first_name='Liv',
+        last_name='Boeree',
+        email='liv@mail.com',
         password=hashed_password,
         account_type='mentee',
         languages='["py", "java"]',

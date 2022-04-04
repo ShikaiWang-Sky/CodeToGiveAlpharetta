@@ -30,4 +30,4 @@ Mentors:
 - albert@mail.com:password
 
 Mentees:
-- bob@mail.com:password
+- liv@mail.com:password
