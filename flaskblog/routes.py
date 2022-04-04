@@ -181,6 +181,11 @@ def schedule():
             data = request.form['data']
             data = json.loads(data)
 
+            if not data:
+                meetings = Meeting.query.filter_by(mentor_id=int(current_user.id)).all()
+                for meeting in meetings:
+                    db.session.delete(meeting)
+
             for d in data:
                 # Checking for new events
                 m = Meeting.query.filter_by(mentor_id=int(current_user.id), start=str(d['start'])).first()
