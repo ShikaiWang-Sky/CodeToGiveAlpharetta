@@ -167,28 +167,28 @@ def reset_request():
     return render_template('reset_token.html', title='resetPassword', form=form)
 
 
-
-
-
 # For mentors to edit their schedule
 @app.route('/schedule', methods=['GET', 'POST'])
 @login_required
 def schedule():
     if current_user.account_type == 'mentor':
-        
+
         # Save calendar memory into database
         if request.method == 'POST':
             data = request.form['data']
             data = json.loads(data)
+            # logger.debug(f'data: {data}')
 
+            meetings = Meeting.query.filter_by(mentor_id=int(current_user.id)).all()
             if not data:
-                meetings = Meeting.query.filter_by(mentor_id=int(current_user.id)).all()
                 for meeting in meetings:
                     db.session.delete(meeting)
+            # logger.debug(f'meetings {len(meetings)}')
 
             for d in data:
                 # Checking for new events
-                m = Meeting.query.filter_by(mentor_id=int(current_user.id), start=str(d['start'])).first()
+                m = Meeting.query.filter_by(mentor_id=int(current_user.id), start=str(d['start']),
+                                            end=str(d['end'])).first()
                 if not m:
                     m = Meeting(
                         mentee_id=-1,
@@ -196,9 +196,27 @@ def schedule():
                         start=str(d['start']),
                         end=str(d['end']),
                         title=str(d['title']),
-                    )                
+                    )
                     db.session.add(m)
-                    print("Added event!")         
+                    print("Added event!")
+
+            # exist prev meeting
+            if meetings or len(meetings) != 0:
+                prev_pairs = []
+                for meeting in meetings:
+                    prev_pairs.append((meeting.start, meeting.end))
+                logger.debug(f'exist {prev_pairs}')
+                cur_pairs = []
+                for d in data:
+                    cur_pairs.append((str(d['start']), str(d['end'])))
+                for prev_pair in prev_pairs:
+                    if prev_pair not in cur_pairs:
+                        logger.debug(f'prev: {prev_pair}')
+                        del_data = Meeting.query.filter_by(mentor_id=int(current_user.id),
+                                                           start=prev_pair[0],
+                                                           end=prev_pair[1]).first()
+                        logger.debug(f'del {del_data}')
+                        db.session.delete(del_data)
             db.session.commit()
 
         return render_template("schedule.html", meetings=current_user.meetings)
@@ -214,7 +232,7 @@ def load_schedule():
     if current_user.account_type == 'mentor':
         meetings = Meeting.query.filter_by(mentor_id=current_user.id).all()
         meetings_json = json.dumps({'meetings': [meeting.to_dict() for meeting in meetings]})
-        logger.debug(meetings_json)
+        # logger.debug(meetings_json)
         # meeting_list = []
         # for meeting in meetings:
         #     meeting_list.append(meeting.to_json())
