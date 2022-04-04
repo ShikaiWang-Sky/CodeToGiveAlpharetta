@@ -207,8 +207,15 @@ def schedule():
 @login_required
 def load_schedule():
     if current_user.account_type == 'mentor':
-        meetings = Meeting.query.filter_by(mentor_id=current_user.id)
-        return jsonify(meetings=meetings)
+        meetings = Meeting.query.filter_by(mentor_id=current_user.id).all()
+        meetings_json = json.dumps({'meetings': [meeting.to_dict() for meeting in meetings]})
+        logger.debug(meetings_json)
+        # meeting_list = []
+        # for meeting in meetings:
+        #     meeting_list.append(meeting.to_json())
+        # meetings_json = jsonify(meeting_list=meeting_list)
+        # logger.debug(meetings_json)
+        return meetings_json
     else:
         flash("An error occurred", 'warning')
         return redirect(url_for('home'))

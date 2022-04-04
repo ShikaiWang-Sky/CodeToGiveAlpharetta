@@ -31,6 +31,12 @@ class Meeting(db.Model):
         else:
             return False
         pass
+
+    def to_dict(self):
+        item = self.__dict__
+        if "_sa_instance_state" in item:
+            del item['_sa_instance_state']
+        return item
     # 'members' backref from User
    
 

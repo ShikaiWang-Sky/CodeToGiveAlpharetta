@@ -5,67 +5,87 @@
 {% block stylesheet %}
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/fullcalendar@5.1.0/main.min.css"/>
     <script src="https://unpkg.com/fullcalendar@5.1.0/main.min.js"></script>
-    
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
+        document.addEventListener('DOMContentLoaded', function () {
+            const get_data = function () {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/load_schedule', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
+                xhr.send(null);
+                xhr.onreadystatechange = function () {
+                    if(xhr.readyState == 4 && xhr.status == 200) {
+                        const response = JSON.stringify(xhr.responseText);
+                        console.log(response)
+                    }
+                };
+            };
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'timeGridWeek',
-          eventOverlap: false,
-          selectOverlap: false,
-          nowIndicator: true,
-          editable: false, // enable draggable events
-          expandRows: true,
-          selectable: true,
-          contentHeight: 600,
-          aspectRatio: 2,
-          allDaySlot: false,
-          
-          slotMinTime: '08:00:00',
-          slotMaxTime: '18:00:00',
-          slotDuration: '00:60:00',
+            var calendarEl = document.getElementById('calendar');
 
-          headerToolbar: {
-              left: 'title',
-              center: 'saveToDatabase'
-          },
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                eventOverlap: false,
+                selectOverlap: false,
+                nowIndicator: true,
+                editable: false, // enable draggable events
+                expandRows: true,
+                selectable: true,
+                contentHeight: 600,
+                aspectRatio: 2,
+                allDaySlot: false,
+
+                slotMinTime: '08:00:00',
+                slotMaxTime: '18:00:00',
+                slotDuration: '00:60:00',
+
+                headerToolbar: {
+                    left: 'title',
+                    center: 'saveToDatabase'
+                },
 
 
-          select: function(info) {
-              console.log(info.startStr);
-              console.log(info.endStr);
-              var start_time = new Date(info.startStr);
-              var end_time = new Date(info.endStr);
-              calendar.addEvent({
-                title: 'Open Slot',
-                start: start_time,
-                end: end_time,
-              });
-              console.log('Ran');
-          },
+                select: function (info) {
+                    console.log(info.startStr);
+                    console.log(info.endStr);
+                    var start_time = new Date(info.startStr);
+                    var end_time = new Date(info.endStr);
+                    calendar.addEvent({
+                        title: 'Open Slot',
+                        start: start_time,
+                        end: end_time,
+                    });
+                    console.log('Ran');
+                },
 
-          eventClick: function(info) {
-              info.event.remove();
-          },
+                eventClick: function (info) {
+                    info.event.remove();
+                },
 
-          customButtons: {
-              saveToDatabase: {
-                  text: 'Save Schedule',
-                  click: function() {                      
-                      var data = JSON.stringify(calendar.getEvents());
-                      var req = new XMLHttpRequest();
-                      req.open('POST', '/schedule', true);
-                      req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
-                      req.send("data=" + data);
-                      alert('Schedule saved!');
-                  },
-              },
-          },
-        });       
+                customButtons: {
+                    saveToDatabase: {
+                        text: 'Save Schedule',
+                        click: function () {
+                            var data = JSON.stringify(calendar.getEvents());
+                            var req = new XMLHttpRequest();
+                            req.open('POST', '/schedule', true);
+                            req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
+                            req.send("data=" + data);
+                            alert('Schedule saved!');
+                        },
+                    },
+                },
 
-        calendar.render();
-      });
+                eventSource: [
+                    {
+                        url: '/load_schedule',
+                        method: 'POST'
+                    }
+                ]
+            });
+
+            calendar.render();
+        });
     </script>
 
 {% endblock stylesheet %}
