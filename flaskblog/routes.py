@@ -243,6 +243,24 @@ def load_schedule():
         flash("An error occurred", 'warning')
         return redirect(url_for('home'))
 
+        # load schedule for mentor
+@app.route('/load_schedule/<id>', methods=['GET', 'POST'])
+@login_required
+def load_mentor_schedule(id):
+    try:
+        meetings = Meeting.query.filter_by(mentor_id=id).all()
+        meetings_json = json.dumps({'meetings': [meeting.to_dict() for meeting in meetings]})
+        # logger.debug(meetings_json)
+        # meeting_list = []
+        # for meeting in meetings:
+        #     meeting_list.append(meeting.to_json())
+        # meetings_json = jsonify(meeting_list=meeting_list)
+        # logger.debug(meetings_json)
+        return meetings_json
+    except:
+        flash("An error occurred", 'warning')
+        return redirect(url_for('home'))
+
 
 # For mentees to view mentor's schedule
 @app.route('/schedule/<id>', methods=['GET', 'POST'])
@@ -250,7 +268,7 @@ def load_schedule():
 def mentor_schedule(id):
     mentor_id = int(id)
     if current_user.account_type == 'mentee':
-        return render_template("schedule.html")
+        return render_template("schedule.html", mentor_id=mentor_id)
 
 
 # ADMIN STUFF
