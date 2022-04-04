@@ -17,8 +17,26 @@ user_meeting = db.Table('user_meeting',
 class Meeting(db.Model):
     __tablename__ = 'meetings'
     id = db.Column(db.Integer, primary_key=True)
-    start = db.Column(db.DateTime(), nullable=False)
-    end = db.Column(db.DateTime(), nullable=False)
+    start = db.Column(db.String(), nullable=False)
+    end = db.Column(db.String(), nullable=False)
+
+    title = db.Column(db.String(), nullable=False)
+    mentor_id = db.Column(db.Integer(), nullable=False)
+    mentee_id = db.Column(db.Integer())
+
+    def check_duplicates(self):
+        if int(self.mentor_id) == int(other.mentor_id):
+            if str(self.start) == str(other.start):
+                return True
+        else:
+            return False
+        pass
+
+    def to_dict(self):
+        item = self.__dict__
+        if "_sa_instance_state" in item:
+            del item['_sa_instance_state']
+        return item
     # 'members' backref from User
    
 
