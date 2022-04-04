@@ -1,5 +1,11 @@
 # CodeToGiveAlpharetta
 
+## Todo
+- Admin management system
+- Finish scheduling between mentor/mentee
+- Gamification
+- Possible messaging/DMs, similar to LinkedIn?
+
 ## Important Links
 - [Google Docs](https://docs.google.com/document/d/1Y4nOp9KAwRexFJ1SNVYSL_F9J6QAfl_tHtQLCJPmo8U/edit)
 - [Figma Wireframe](https://www.figma.com/file/YctDeTPcQnwaGFwI1gNOqx/CodetoGive?node-id=0%3A1)
